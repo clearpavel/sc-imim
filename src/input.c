@@ -180,6 +180,14 @@ void handle_input(struct block * buffer) {
             // Replace maps in buffer
             // break if nore mapping
             if (replace_maps(buffer) == 1) break;
+            
+            if (!has_cmd(buffer, msec) && !could_be_mapping(buffer)) {
+                // Команда не распознана и не может быть началом сопоставления
+                ui_print_error("Неизвестная команда");
+                flush_buf(buffer);
+                cmd_pending = 0;
+                continue;
+            }
         }
 
         /*

@@ -89,6 +89,7 @@ void ui_bail(lua_State *L, char * msg);
 char * ui_query(char * initial_msg);
 void ui_start_colors();
 void ui_sc_msg(char * s, int type, ...);
+void ui_print_error(char *message);
 
 void ui_set_ucolor(WINDOW * w, struct ucolor * uc, int bg_override);
 int ui_show_content(WINDOW * win, int mxrow, int mxcol);

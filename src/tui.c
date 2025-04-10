@@ -302,6 +302,18 @@ void ui_sc_msg(char * s, int type, ...) {
 }
 
 /**
+ * \brief Used for sc_error
+ *
+ * \param[in] message
+ * \return none
+ */
+
+void ui_print_error(char *message) {
+    ui_sc_msg(message, ERROR_MSG);
+    return;
+}
+
+/**
  * \brief Welcome screen function used when starting sc-im without a file
  * as a parameter
  *
