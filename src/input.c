@@ -181,15 +181,7 @@ void handle_input(struct block * buffer) {
             // break if nore mapping
             if (replace_maps(buffer) == 1) break;
             
-            if (!has_cmd(buffer, msec) && !could_be_mapping(buffer)) {
-                // Команда не распознана и не может быть началом сопоставления
-                ui_print_error("Неизвестная команда");
-                flush_buf(buffer);
-                cmd_pending = 0;
-                continue;
-            }
         }
-
         /*
          * Update time stamp to reset timeout after each loop
          * (start_tv changes only if current mode is COMMAND, INSERT or
@@ -210,6 +202,14 @@ void handle_input(struct block * buffer) {
             ui_print_mult_pend();
             ui_refresh_pad(0);
             return;
+        }
+
+        if (!has_cmd(buffer, msec) && !could_be_mapping(buffer)) {
+            // Команда не распознана и не может быть началом сопоставления
+            ui_print_error("Неизвестная команда");
+            flush_buf(buffer);
+            cmd_pending = 0;
+            continue;
         }
 
     }
