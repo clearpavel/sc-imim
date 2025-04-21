@@ -43,6 +43,7 @@
  */
 
 #include <stdio.h>
+#include <wchar.h>
 #include <sys/time.h>
 #include <string.h>
 #include <ctype.h>   // for isdigit
@@ -60,6 +61,18 @@
 #include "cmds/cmds_visual.h"
 #include "buffer.h"
 #include "digraphs.h"
+
+char *wchar_to_string(wchar_t wc) {
+    static char buffer[8]; // Буфер должен быть достаточно большим, чтобы вместить UTF-8 представление символа
+    int result = wctomb(buffer, wc);
+    if (result == -1) {
+        sprintf(buffer, "<invalid>");
+    } else {
+        buffer[result] = '\0';
+    }
+    return buffer;
+}
+
 
 static wint_t wd;          // char read from stdin
 static int d;              // char read from stdin
@@ -183,15 +196,7 @@ void handle_input(struct block * buffer) {
             if (replace_maps(buffer) == 1) break;
         }
 
-        printf("Buffer: %s\n", buffer->value ? wctoa(buffer->value) : "empty");
-        /*
-         * Update time stamp to reset timeout after each loop
-         * (start_tv changes only if current mode is COMMAND, INSERT or
-         * EDIT) and for each user input as well.
-         */
-        if (!has_cmd(buffer, msec) && !could_be_mapping(buffer)) {
-            
-        }
+        
         /*
          * Update time stamp to reset timeout after each loop
          * (start_tv changes only if current mode is COMMAND, INSERT or
@@ -213,7 +218,11 @@ void handle_input(struct block * buffer) {
             ui_refresh_pad(0);
             return;
         }
-        cmd_pending = 0;
+        printf("Buffer: %s\n", buffer->value ? wchar_to_string(buffer->value) : "empty");
+        if (!has_cmd(buffer, msec) && !could_be_mapping(buffer)) {
+            ui_print_error("Неизвестная команда");
+            flush_buf(buffer);
+            cmd_pending = 0;
             continue;
         }
     }
@@ -225,9 +234,7 @@ void handle_input(struct block * buffer) {
         ui_clr_header(1);     // Clean second line
         handle_mult( &cmd_multiplier, buffer, msec ); // Handle command and repeat as many times as the multiplier dictates
     }
-    ui_print_mult_pend();
-    flush_buf(buffer);        // Flush the buffer
-    return;
+    ui_print_mult_pend();flush_buf(buffer);return;
 }
 
 /**
